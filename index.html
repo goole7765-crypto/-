@@ -189,6 +189,66 @@
     // 앱 시작 시 첫 카드 표시
     renderCard();
   </script>
+<!-- Firebase 실제 연동 코드 시작 -->
+<div id="firebase-auth-box" style="position:fixed; bottom:15px; right:15px; background:#fff; padding:15px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.2); z-index:9999; width:260px; font-family:sans-serif; border:1px solid #eee;">
+  <div style="font-weight:bold; margin-bottom:8px; color:#ff4b6e;">🔥 실제 회원 등록 테스트</div>
+  <input id="fb-email" type="email" placeholder="이메일 (예: test@test.com)" style="width:100%; padding:6px; margin-bottom:5px; box-sizing:border-box; border:1px solid #ddd; border-radius:6px;">
+  <input id="fb-pw" type="password" placeholder="비밀번호 (6자리 이상)" style="width:100%; padding:6px; margin-bottom:5px; box-sizing:border-box; border:1px solid #ddd; border-radius:6px;">
+  <input id="fb-name" type="text" placeholder="닉네임 및 나이 (예: 지수, 24)" style="width:100%; padding:6px; margin-bottom:8px; box-sizing:border-box; border:1px solid #ddd; border-radius:6px;">
+  <button id="fb-signup-btn" style="width:100%; padding:8px; background:#ff4b6e; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">가입 및 DB 저장하기</button>
+  <div id="fb-status" style="font-size:12px; color:#555; margin-top:6px;"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://gstatic.com";
+  import { getAuth, createUserWithEmailAndPassword } from "https://gstatic.com";
+  import { getFirestore, collection, addDoc, getDocs } from "https://gstatic.com";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCX-t4NhsYDUW3c5cdB-gkbHjuktCJmU",
+    authDomain: "://firebaseapp.com",
+    projectId: "dating-app-dd0bf",
+    storageBucket: "dating-app-dd0bf.firebasestorage.app",
+    messagingSenderId: "699107481551",
+    appId: "1:699107481551:web:fdf77dbd4a676ac07c64ba",
+    measurementId: "G-RFRGHFVRZ9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const btn = document.getElementById("fb-signup-btn");
+  const status = document.getElementById("fb-status");
+
+  btn.addEventListener("click", async () => {
+    const email = document.getElementById("fb-email").value;
+    const pw = document.getElementById("fb-pw").value;
+    const name = document.getElementById("fb-name").value;
+
+    if (!email || !pw || !name) {
+      status.innerText = "모든 칸을 입력해 주세요.";
+      return;
+    }
+
+    try {
+      status.innerText = "저장 중...";
+      const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
+      await addDoc(collection(db, "users"), {
+        uid: userCredential.user.uid,
+        email: email,
+        profile: name,
+        createdAt: new Date()
+      });
+      status.style.color = "green";
+      status.innerText = "✅ 가입 및 DB 저장 완료!";
+    } catch (error) {
+      status.style.color = "red";
+      status.innerText = "오류: " + error.message;
+    }
+  });
+</script>
+<!-- Firebase 실제 연동 코드 끝 -->
 
 </body>
 </html>
